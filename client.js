@@ -1,7 +1,5 @@
 const net = require("net");
 const readLine = require("readline/promises");
-const dotenv = require("dotenv");
-dotenv.config({ path: process.cwd() + "/.env" });
 
 const rl = readLine.createInterface({
   input: process.stdin,
