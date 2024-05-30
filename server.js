@@ -27,7 +27,8 @@ server.on("connection", (socket) => {
     });
   });
 });
-
-server.listen(3099, "127.0.0.1", () => {
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
+server.listen(PORT, HOST, () => {
   console.log("opened server on ", server.address());
 });

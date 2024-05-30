@@ -1,5 +1,7 @@
 const net = require("net");
 const readLine = require("readline/promises");
+const dotenv = require("dotenv");
+dotenv.config({ path: process.cwd() + ".env" });
 
 const rl = readLine.createInterface({
   input: process.stdin,
@@ -22,37 +24,37 @@ const moveCursor = (dx, dy) => {
   });
 };
 
+const HOST = process.env.HOST;
+const PORT = process.env.PORT;
+
 let id;
 
-const socket = net.createConnection(
-  { host: "127.0.0.1", port: 3099 },
-  async () => {
-    console.log("Connected to server");
+const socket = net.createConnection({ host: HOST, port: PORT }, async () => {
+  console.log("Connected to server");
 
-    const ask = async () => {
-      const message = await rl.question("Enter a mesage > ");
-      await moveCursor(0, -1);
-      await clearLine(0);
-      socket.write(`${id}-message-${message}`);
-    };
+  const ask = async () => {
+    const message = await rl.question("Enter a mesage > ");
+    await moveCursor(0, -1);
+    await clearLine(0);
+    socket.write(`${id}-message-${message}`);
+  };
+  ask();
+
+  socket.on("data", async (data) => {
+    console.log();
+    await moveCursor(0, -1);
+    await clearLine(0);
+
+    if (data.toString("utf8").startsWith("id-")) {
+      id = data.toString("utf8").substring(3);
+      console.log(`Your id is ${id}!\n`);
+    } else {
+      console.log(data.toString());
+    }
+
     ask();
-
-    socket.on("data", async (data) => {
-      console.log();
-      await moveCursor(0, -1);
-      await clearLine(0);
-
-      if (data.toString("utf8").startsWith("id-")) {
-        id = data.toString("utf8").substring(3);
-        console.log(`Your id is ${id}!\n`);
-      } else {
-        console.log(data.toString());
-      }
-
-      ask();
-    });
-  }
-);
+  });
+});
 
 socket.on("end", () => {
   console.log("connection closed");
